@@ -1,22 +1,23 @@
+# Define a class for representing rooms in the dungeon
 class Room:
     def __init__(self, name, description, exits, items=None, locked_doors=None):
         self.name = name
         self.description = description
         self.exits = exits
-        self.items = items if items else []
-        self.locked_doors = locked_doors if locked_doors else []
+        self.items = items if items else []  # If no items provided, initialize as an empty list
+        self.locked_doors = locked_doors if locked_doors else []  # If no locked doors provided, initialize as an empty list
 
     def get_info(self):
         info = f"Current Room: {self.name}\n{self.description}\nExits: "
         for direction, room_name in self.exits.items():
             command = f"type '{direction.lower()}' to go {direction.lower()}"
             info += f"{command}, "
-        info = info[:-2] + "\n"
+        info = info[:-2] + "\n"  # Remove the trailing comma and space
         for door in self.locked_doors:
             info += f"You see a locked door to the {door}.\n"
         return info
 
-
+# Define a class for representing the player
 class Player:
     def __init__(self, health, inventory, location):
         self.health = health
@@ -26,23 +27,28 @@ class Player:
     def get_stats(self):
         return f"Player Stats:\nHealth: {self.health}\nInventory: {', '.join(self.inventory)}\nLocation: {self.location.name}\n"
 
-
-# Rooms
+# Define rooms in the dungeon
 entrance_hall = Room("Entrance Hall", "Entrance of the dungeon.", {"north": "Kitchen", "east": "Library", "west": "Wizard's Lair"}, locked_doors=["west"])
 library = Room("Library", "A room filled with books.", {"west": "Entrance Hall"}, items=["Key"])
 kitchen = Room("Kitchen", "A place to cook.", {"south": "Entrance Hall", "east": "Armory"})
 armory = Room("Armory", "Weapons and armors.", {"west": "Kitchen"}, items=["Sword"])
 wizard_lair = Room("Wizard's Lair", "A dark room where an evil wizard resides.", {}, items=["Treasure Chest"])
 
+# Create a dictionary of room objects
 rooms = {"Entrance Hall": entrance_hall, "Library": library, "Kitchen": kitchen, "Armory": armory, "Wizard's Lair": wizard_lair}
+
+# Create a player object
 player = Player(100, ["Torch"], entrance_hall)
 
+# Define the main game loop
 def main():
     print("Welcome to the dungeon!")
     while True:
-        print(player.location.get_info())
-        print(player.get_stats())
-        command = input("> ").strip().lower()
+        print(player.location.get_info())  # Print current room information
+        print(player.get_stats())  # Print player stats
+        command = input("> ").strip().lower()  # Get user input
+
+        # Check different commands and respond accordingly
 
         # Move player
         if command in player.location.exits:
@@ -53,9 +59,10 @@ def main():
                 if command in player.location.locked_doors and "Key" in player.inventory:
                     print("You use the Key to unlock the door!")
                     player.location.locked_doors.remove(command)  # Remove locked status from the door
-                player.location = rooms[new_room_name]
+                player.location = rooms[new_room_name]  # Move player to the new room
                 print(f"You enter the {new_room_name}.")
 
+                # Check if player entered the Wizard's Lair
                 if new_room_name == "Wizard's Lair":
                     if "Sword" in player.inventory:
                         print("Congratulations, adventurer! You have defeated the evil wizard and saved the kingdom!")
@@ -63,7 +70,7 @@ def main():
                     else:
                         print("The evil wizard defeated you! You lose 50 health and are sent back to the starting room.")
                         player.health -= 50
-                        player.location = entrance_hall
+                        player.location = entrance_hall  # Send player back to the starting room
                         if player.health <= 0:
                             print("Game over! You have lost all your health. The kingdom is doomed...")
                             break
@@ -76,7 +83,6 @@ def main():
                 player.location.locked_doors.remove(direction)  # Remove locked status from the door
             else:
                 print(f"There's no locked door to the {direction}.")
-
 
         # Inspect current room
         elif command == "inspect":
@@ -92,5 +98,4 @@ def main():
             print("Invalid command. Type 'north', 'south', 'east', or 'west' to move, 'inspect' to inspect the room, or 'unlock' to use a Key.")
 
 if __name__ == "__main__":
-    main()
-
+    main()  # Start the game
